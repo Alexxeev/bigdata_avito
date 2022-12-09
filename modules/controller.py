@@ -24,4 +24,4 @@ def upload_file():
     return json.dumps({'created': created, 'updated': updated}), 200, {'ContentType':'application/json'}
 
 if __name__ == '__main__':
-    app.run(port=9560)
+    app.run(host="0.0.0.0", port=9560)
