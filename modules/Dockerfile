@@ -2,7 +2,7 @@ FROM python:slim-bullseye as builder
 
 WORKDIR /app
 
-RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels flask elasticsearch
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels flask elasticsearch pickle scikit-learn pandas numpy
 
 FROM python:slim-bullseye
 
