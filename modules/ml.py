@@ -2,9 +2,24 @@ from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error
+from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 import numpy as np
 import pickle
+
+MIN_PRICE = 2250000
+MAX_PRICE = 1000000000
+CHOSEN_MIN = 1
+CHOSEN_MAX = 10
+columns = pd.Index(['area', 'livingArea', 'rooms', 'floor', 'total_floor', 'buildYear',
+       'time_from_metro_min'])
+
+def build_model(filename: str):
+    df = read_csv(filename)
+    df[0] = preprocess_data(df[0])
+    df[1] = scale_price(df[1])
+    rfr = build_regress_model(df[0], df[1])
+    dump_regress_model(rfr)
 
 def read_csv(filename: str) -> tuple[pd.DataFrame, pd.Series]:
     df = pd.read_csv(filename, sep=";", skipinitialspace=True, usecols=np.arange(18))
@@ -29,6 +44,11 @@ def preprocess_data(df: pd.DataFrame):
     df.rooms = df.rooms.apply(np.int64)
     df.buildYear = df.buildYear.apply(np.int64)
 
+def scale_price(y: pd.Series):
+    scaler = MinMaxScaler((1, 10))
+    y_norm = scaler.fit_transform(np.reshape(y.values, (-1, 1)))
+    return y_norm.ravel()
+
 def build_regress_model(df: pd.DataFrame, y: pd.Series) -> RandomForestRegressor:
     X_train, X_test, y_train, y_test = train_test_split(df, y, test_size=0.33)
     rfr = RandomForestRegressor(n_estimators=100, n_jobs=2)
@@ -38,10 +58,14 @@ def build_regress_model(df: pd.DataFrame, y: pd.Series) -> RandomForestRegressor
     return rfr
 
 def dump_regress_model(rfr: RandomForestRegressor):
-    pickle.dump(rfr, open("flatz.pkl", "wb"))
+    pickle.dump(rfr, open("model/flatz.pkl", "wb"))
 
 
-def predict(request: list, model):
-    prediction = model.predict(np.array(request))
-    output = [prediction[0]]
-    return output
+def predict(request: list, model: RandomForestRegressor):
+    df = pd.DataFrame(request)
+    df.columns = columns
+    prediction = model.predict(df)
+    y = prediction[0]
+    y_std = (y - CHOSEN_MIN) / (CHOSEN_MAX - CHOSEN_MIN)
+    y_unscaled = y_std * (MAX_PRICE - MIN_PRICE) + MIN_PRICE
+    return round(y_unscaled)
