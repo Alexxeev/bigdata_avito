@@ -43,6 +43,8 @@ services:
       - elasticnet
     depends_on:
       - elasticsearch
+    volumes:
+      - ./model:/model
 
 volumes:
   logvolume01:
