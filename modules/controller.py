@@ -9,9 +9,7 @@ ALLOWED_EXTENSIONS = {"txt", "csv"}
 
 app = Flask(__name__)
 
-THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-FILE_NAME = os.path.join(THIS_FOLDER, 'flatz.pkl')
-stored_model = pkl.load(open(FILE_NAME, 'rb'))
+stored_model = pkl.load(open('model/flatz.pkl', 'rb'))
 
 def is_valid_extension(filename: str) -> bool:
     return '.' in filename and \
