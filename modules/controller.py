@@ -29,7 +29,7 @@ def upload_file():
     return json.dumps({'created': created, 'updated': updated}), 200, {'ContentType':'application/json'}
 
 @app.route('/predict/', methods=['GET'])
-def predict():
+def process_predict():
     data = request.get_json(force=True)
     predict_request = [
         data['area'], 
@@ -38,7 +38,6 @@ def predict():
         data['floor'],
         data['total_floor'],
         data['buildYear'],
-        data['passengerLiftsCountl'],
         data['walk_to_metro']
         ]
     output = predict(predict_request, stored_model)

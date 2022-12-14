@@ -13,6 +13,6 @@ COPY --from=builder /app/wheels /wheels
 RUN pip install --no-cache /wheels/*
 
 COPY ./modules/*.py .
-COPY ./model/flatz.pkl ./model/flatz.pkl
+COPY ./model/*.pkl ./model/
 
 CMD [ "python3", "controller.py" ]

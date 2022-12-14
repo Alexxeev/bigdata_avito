@@ -9,7 +9,7 @@ import pickle
 
 columns = pd.Index(['area', 'livingArea', 'rooms', 'floor', 'total_floor', 'buildYear',
        'time_from_metro_min'])
-scaler = MinMaxScaler((1, 10))
+scaler = pickle.load(open('model/scaler.pkl', 'rb'))
 
 def build_model(filename: str):
     df = read_csv(filename)
@@ -59,7 +59,7 @@ def dump_regress_model(rfr: RandomForestRegressor):
 
 
 def predict(request: list, model: RandomForestRegressor):
-    df = pd.DataFrame(request)
+    df = pd.DataFrame([request])
     df.columns = columns
     prediction = model.predict(df)
     prediction_unscaled = scaler.inverse_transform(np.reshape(prediction, (-1, 1)))
