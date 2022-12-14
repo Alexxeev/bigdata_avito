@@ -7,12 +7,9 @@ import pandas as pd
 import numpy as np
 import pickle
 
-MIN_PRICE = 2250000
-MAX_PRICE = 1000000000
-CHOSEN_MIN = 1
-CHOSEN_MAX = 10
 columns = pd.Index(['area', 'livingArea', 'rooms', 'floor', 'total_floor', 'buildYear',
        'time_from_metro_min'])
+scaler = MinMaxScaler((1, 10))
 
 def build_model(filename: str):
     df = read_csv(filename)
@@ -45,7 +42,7 @@ def preprocess_data(df: pd.DataFrame):
     df.buildYear = df.buildYear.apply(np.int64)
 
 def scale_price(y: pd.Series):
-    scaler = MinMaxScaler((1, 10))
+    #scaler = MinMaxScaler((1, 10))
     y_norm = scaler.fit_transform(np.reshape(y.values, (-1, 1)))
     return y_norm.ravel()
 
@@ -65,7 +62,6 @@ def predict(request: list, model: RandomForestRegressor):
     df = pd.DataFrame(request)
     df.columns = columns
     prediction = model.predict(df)
-    y = prediction[0]
-    y_std = (y - CHOSEN_MIN) / (CHOSEN_MAX - CHOSEN_MIN)
-    y_unscaled = y_std * (MAX_PRICE - MIN_PRICE) + MIN_PRICE
-    return round(y_unscaled)
+    prediction_unscaled = scaler.inverse_transform(np.reshape(prediction, (-1, 1)))
+    prediction_flattened = prediction_unscaled.ravel()
+    return round(prediction_flattened[0])
