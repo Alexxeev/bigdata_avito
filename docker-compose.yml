@@ -35,9 +35,7 @@ services:
       - elasticsearch
 
   python-server:
-    build:
-      context: ./
-      dockerfile: ./modules/Dockerfile
+    build: modules
     container_name: python-server
     ports:
       - '9560:9560'
